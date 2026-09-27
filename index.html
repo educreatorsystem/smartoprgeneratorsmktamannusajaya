@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Laporan One Page Report (OPR) & Kalendar Program - SMK TAMAN NUSA JAYA</title>
+    <!-- PWA Configuration -->
+    <meta name="theme-color" content="#0a3651">
+    <meta name="description" content="Sistem Penjana Laporan One Page Report (OPR) dan Kalendar Program Sekolah Kebangsaan Convent">
+    <meta name="application-name" content="OPR SK Convent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="OPR SKC">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" type="image/png" href="https://iili.io/n5OSeAg.md.png">
+    <link rel="apple-touch-icon" href="https://iili.io/n5OSeAg.md.png">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0a3651',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for A4 preview and print layout */
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm;
+            margin: auto;
+            background: #ffffff;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.12);
+            font-size: 9.5pt;
+            line-height: 1.45;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Border bingkai khas untuk laporan sekolah */
+        .school-frame {
+            border: 2px solid #0c4a6e;
+            outline: 1px solid #0284c7;
+            outline-offset: -5px;
+            min-height: 275mm;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header Utama -->
+    <header class="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-900 text-white shadow-lg sticky top-0 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <img src="https://iili.io/n5OSeAg.md.png" alt="Lencana SMK TAMAN NUSA JAYA" class="h-12 w-auto bg-white p-1 rounded-full shadow-md object-contain" onerror="this.src='https://placehold.co/100x100/0284c7/fff?text=SMKTNJ'">
+                <div>
+                    <h1 class="font-extrabold text-lg sm:text-xl tracking-wide leading-tight">SMK TAMAN NUSA JAYA</h1>
+                    <p class="text-xs text-brand-100 font-light">Sistem Penjana Laporan Ringkas & Kalendar Aktiviti Tahunan</p>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <nav class="flex bg-brand-900/60 p-1 rounded-xl border border-brand-700/50 flex-wrap gap-1">
+                <button id="tabFormBtn" onclick="switchTab('form')" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-2 bg-white text-brand-900 shadow">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Bina Laporan</span>
+                </button>
+                <button id="tabListBtn" onclick="switchTab('list')" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-brand-100 hover:text-white transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Lihat Laporan</span>
+                    <span id="reportCountBadge" class="bg-brand-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+                </button>
+                <button id="tabCalendarBtn" onclick="switchTab('calendar')" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-brand-100 hover:text-white transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span>Kalendar Program</span>
+                </button>
+            </nav>
+
+                <button id="pwaInstallBtn" type="button" onclick="installPWA()" class="hidden px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-emerald-500 hover:bg-emerald-600 text-white transition-all duration-200 items-center gap-2 shadow" title="Pasang aplikasi pada peranti">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Pasang Aplikasi</span>
+                </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Status Toast & Messages -->
+        <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md"></div>
+
+        <!-- TAB 1: FORM PENJANAN LAPORAN -->
+        <section id="tabForm" class="space-y-6">
+
+            <form id="oprForm" onsubmit="handleFormSubmit(event)" class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <span id="formTitleBadge" class="bg-brand-600 text-white font-bold text-xs uppercase px-3 py-1 rounded-full">Laporan Baru</span>
+                        <h2 class="text-lg font-bold text-slate-800" id="formHeading">Maklumat Program & Penilaian OPR Terperinci</h2>
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <!-- Basic Information Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Nama Program -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Nama Program / Aktiviti <span class="text-red-500">*</span></label>
+                            <input type="text" id="namaProgram" required placeholder="Cth: Kejohanan Olahraga & Kem Pembentukan Sahsiah SMK TAMAN NUSA JAYA 2026" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all">
+                        </div>
+
+                        <!-- Unit Dropdown & Custom Input -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Unit Pengurusan <span class="text-red-500">*</span></label>
+                            <select id="unit" required onchange="handleUnitChange()" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm bg-white transition-all">
+                                <option value="">-- Pilih Unit --</option>
+                                <option value="Kurikulum">Kurikulum</option>
+                                <option value="Kokurikulum">Kokurikulum</option>
+                                <option value="Hal Ehwal Murid">Hal Ehwal Murid (HEM)</option>
+                                <option value="Pentadbiran">Pentadbiran / Lain-lain</option>
+                                <option value="Lain-lain">-- Taip Unit Sendiri --</option>
+                            </select>
+                            <input type="text" id="customUnitInput" placeholder="Taip nama unit di sini..." class="hidden mt-2 w-full px-4 py-2 rounded-xl border border-brand-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all">
+                        </div>
+
+                        <!-- Tarikh Awal -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Tarikh Mula <span class="text-red-500">*</span></label>
+                            <input type="date" id="tarikhMula" required onchange="updateDayLabels()" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all">
+                            <span id="dayLabelMula" class="text-xs font-semibold text-brand-600 mt-1 block"></span>
+                        </div>
+
+                        <!-- Tarikh Akhir -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Tarikh Akhir <span class="text-red-500">*</span></label>
+                            <input type="date" id="tarikhAkhir" required onchange="updateDayLabels()" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all">
+                            <span id="dayLabelAkhir" class="text-xs font-semibold text-brand-600 mt-1 block"></span>
+                        </div>
+
+                        <!-- Tempat -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Tempat / Lokasi <span class="text-red-500">*</span></label>
+                            <input type="text" id="tempat" required placeholder="Cth: Padang Utama & Dewan Utama SMK TAMAN NUSA JAYA" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all">
+                        </div>
+
+                        <!-- Sasaran & AI Button -->
+                        <div class="md:col-span-3 space-y-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Sasaran Peserta <span class="text-red-500">*</span></label>
+                                <input type="text" id="sasaran" required placeholder="Cth: Semua Murid Tahap 1 & 2 (540 Orang), Guru & Anggota Kumpulan Pelaksana" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all">
+                            </div>
+
+                            <div class="flex items-center pt-1">
+                                <button type="button" onclick="generateTemplateContent()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    <span>Jana Ulasan Automatik (Template Pelbagai)</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-200">
+
+                    <!-- Objektif, Kekuatan, Kelemahan, Penambahbaikan Fields -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-md font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-clipboard-list text-brand-600"></i>
+                                <span>Ulasan Terperinci & Penilaian Program (Padat Input, Tanpa Ruang Kosong)</span>
+                            </h3>
+                            <span class="text-xs text-slate-500 italic">*Format multi-poin terperinci digalakkan</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">1. Objektif Program <span class="text-red-500">*</span></label>
+                                <textarea id="objektif" rows="5" required placeholder="1. Meningkatkan penglibatan menyeluruh murid dalam aktiviti sekolah secara holistik dan berdisiplin.&#10;2. Memupuk semangat kerjasama, kepimpinan, dan daya saing sihat antara rumah sukan/kelab.&#10;3. Melahirkan murid yang seimbang dari aspek jasmani, emosi, rohani dan intelek (JERI)." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all leading-relaxed"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">2. Kekuatan Program <span class="text-red-500">*</span></label>
+                                <textarea id="kekuatan" rows="5" required placeholder="1. Komitmen penuh dan pengurusan sistematik daripada semua Ahli Jawatankuasa Pelaksana program.&#10;2. Sokongan kewangan serta kehadiran padu daripada pihak PIBG dan komuniti ibu bapa murid.&#10;3. Kawalan disiplin murid yang cemerlang serta penyertaan aktif sepanjang program berlangsung." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all leading-relaxed"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">3. Kelemahan / Masalah <span class="text-red-500">*</span></label>
+                                <textarea id="kelemahan" rows="5" required placeholder="1. Kekangan masa persediaan teknikal dan persediaan logistik akibat perubahan cuaca yang tidak menentu.&#10;2. Kawasan tempat duduk penonton agak terhad untuk menampung kehadiran ibu bapa yang ramai.&#10;3. Sistem siar raya (PA system) mengalami sedikit gangguan frekuensi teknikal pada fasa awal acara." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all leading-relaxed"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">4. Cadangan Penambahbaikan <span class="text-red-500">*</span></label>
+                                <textarea id="penambahbaikan" rows="5" required placeholder="1. Menyusun takwim persediaan dan ujian teknikal peralatan 2 minggu lebih awal sebelum tarikh acara.&#10;2. Menyediakan khemah tambahan dan ruang legar berbumbung khusus untuk keselesaan para ibu bapa.&#10;3. Mengadakan taklimat kontingensi cuaca hujan serta menyediakan pelan tapak alternatif yang lengkap." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all leading-relaxed"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-200">
+
+                    <!-- Muat Naik 3 Gambar -->
+                    <div class="space-y-3">
+                        <h3 class="text-md font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-images text-brand-600"></i>
+                            <span>Muat Naik Dokumentasi Bergambar (3 Gambar Utama)</span>
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Slot 1 -->
+                            <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-brand-500 transition-all bg-slate-50 relative">
+                                <input type="file" id="imageInput1" accept="image/*" onchange="previewImage(this, 1)" class="hidden">
+                                <label id="imgUploadLabel1" for="imageInput1" class="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4">
+                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
+                                    <span class="text-xs font-semibold text-slate-600">Pilih Gambar 1</span>
+                                </label>
+                                <div id="imgPreviewContainer1" class="hidden relative group">
+                                    <img id="imgPreview1" src="" class="w-full h-32 object-cover rounded-lg border border-slate-200">
+                                    <button type="button" onclick="removeImage(1)" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 text-xs shadow-md hover:bg-red-700 transition-all">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Slot 2 -->
+                            <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-brand-500 transition-all bg-slate-50 relative">
+                                <input type="file" id="imageInput2" accept="image/*" onchange="previewImage(this, 2)" class="hidden">
+                                <label id="imgUploadLabel2" for="imageInput2" class="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4">
+                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
+                                    <span class="text-xs font-semibold text-slate-600">Pilih Gambar 2</span>
+                                </label>
+                                <div id="imgPreviewContainer2" class="hidden relative group">
+                                    <img id="imgPreview2" src="" class="w-full h-32 object-cover rounded-lg border border-slate-200">
+                                    <button type="button" onclick="removeImage(2)" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 text-xs shadow-md hover:bg-red-700 transition-all">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Slot 3 -->
+                            <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-brand-500 transition-all bg-slate-50 relative">
+                                <input type="file" id="imageInput3" accept="image/*" onchange="previewImage(this, 3)" class="hidden">
+                                <label id="imgUploadLabel3" for="imageInput3" class="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4">
+                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
+                                    <span class="text-xs font-semibold text-slate-600">Pilih Gambar 3</span>
+                                </label>
+                                <div id="imgPreviewContainer3" class="hidden relative group">
+                                    <img id="imgPreview3" src="" class="w-full h-32 object-cover rounded-lg border border-slate-200">
+                                    <button type="button" onclick="removeImage(3)" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 text-xs shadow-md hover:bg-red-700 transition-all">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-200">
+
+                    <!-- Disediakan Oleh Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Disediakan Oleh (Nama Guru) <span class="text-red-500">*</span></label>
+                            <input type="text" id="namaGuru" required placeholder="Cth: CIKGU AHMAD FAIZAL BIN ZULKIFLI" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all uppercase">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Jawatan / Unit Guru <span class="text-red-500">*</span></label>
+                            <input type="text" id="jawatanGuru" required placeholder="Cth: Setiausaha Kokurikulum SMK TAMAN NUSA JAYA" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Action Buttons -->
+                <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 flex flex-wrap justify-end gap-3">
+                    <input type="hidden" id="editingId" value="">
+                    <button type="button" onclick="resetForm()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-100 transition-all">
+                        Batal / Set Semula
+                    </button>
+                    <button type="submit" id="saveBtn" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold shadow-lg shadow-brand-600/30 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span id="saveBtnText">Simpan Laporan Ke Google Sheet</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- TAB 2: SENARAI LAPORAN -->
+        <section id="tabList" class="hidden space-y-6">
+            <!-- Filter & Search Bar -->
+            <div class="bg-white p-4 rounded-2xl shadow-md border border-slate-200 flex flex-wrap justify-between items-center gap-4">
+                <div class="flex items-center gap-3 flex-1 min-w-[280px]">
+                    <div class="relative w-full">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400"></i>
+                        <input type="text" id="searchInput" oninput="filterReports()" placeholder="Cari nama program, tempat atau nama guru..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <select id="filterUnit" onchange="filterReports()" class="px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white font-medium text-slate-700">
+                        <option value="">Semua Unit</option>
+                        <option value="Kurikulum">Kurikulum</option>
+                        <option value="Kokurikulum">Kokurikulum</option>
+                        <option value="Hal Ehwal Murid">Hal Ehwal Murid</option>
+                        <option value="Pentadbiran">Pentadbiran</option>
+                    </select>
+
+                    <button onclick="fetchReportsFromAppsScript()" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all" title="Muat Semula Rekod">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Reports Grid -->
+            <div id="reportsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards injected dynamically -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-sm">
+                <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-500">
+                    <i class="fa-regular fa-folder-open text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 mb-1">Tiada Laporan Dijumpai</h3>
+                <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">Belum ada laporan yang disimpan atau carian anda tidak memberi padanan. Sila cipta laporan baru.</p>
+                <button onclick="switchTab('form')" class="px-5 py-2.5 bg-brand-600 text-white font-semibold text-sm rounded-xl hover:bg-brand-700 shadow">
+                    + Bina Laporan Baru
+                </button>
+            </div>
+        </section>
+
+        <!-- TAB 3: KALENDAR PROGRAM -->
+        <section id="tabCalendar" class="hidden space-y-6">
+            <!-- Filter Controls Panel -->
+            <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-200 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-brand-50 text-brand-600 rounded-xl">
+                            <i class="fa-solid fa-calendar-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-extrabold text-slate-800 text-lg">Kalendar Program & Aktiviti Tahunan</h2>
+                            <p class="text-xs text-slate-500">Paparan jadual program berserta maklumat hari dan rekod dokumentasi OPR.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="clearCalendarFilters()" class="px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>Semua Aktiviti</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters Form -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Month Picker -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Pilih Bulan</label>
+                        <select id="calFilterMonth" onchange="renderCalendarView()" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-white text-slate-800">
+                            <option value="ALL">-- Semua Bulan --</option>
+                            <option value="0">Januari</option>
+                            <option value="1">Februari</option>
+                            <option value="2">Mac</option>
+                            <option value="3">April</option>
+                            <option value="4">Mei</option>
+                            <option value="5">Jun</option>
+                            <option value="6">Julai</option>
+                            <option value="7">Ogos</option>
+                            <option value="8">September</option>
+                            <option value="9">Oktober</option>
+                            <option value="10">November</option>
+                            <option value="11">Disember</option>
+                        </select>
+                    </div>
+
+                    <!-- Year Picker -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Pilih Tahun</label>
+                        <select id="calFilterYear" onchange="renderCalendarView()" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-white text-slate-800">
+                            <option value="ALL">-- Semua Tahun --</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026" selected>2026</option>
+                            <option value="2027">2027</option>
+                        </select>
+                    </div>
+
+                    <!-- Specific Date Filter -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Cari Tarikh Khusus</label>
+                        <input type="date" id="calFilterSpecificDate" onchange="renderCalendarView()" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800">
+                    </div>
+
+                    <!-- Unit Filter -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Pilih Unit</label>
+                        <select id="calFilterUnit" onchange="renderCalendarView()" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-white text-slate-800">
+                            <option value="ALL">-- Semua Unit --</option>
+                            <option value="Kurikulum">Kurikulum</option>
+                            <option value="Kokurikulum">Kokurikulum</option>
+                            <option value="Hal Ehwal Murid">Hal Ehwal Murid</option>
+                            <option value="Pentadbiran">Pentadbiran</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar Display Container (Grid + Timeline List) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Timeline / Agenda List (Left 2 Columns) -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-50 border-b border-slate-200 px-5 py-3.5 flex items-center justify-between">
+                            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-brand-600"></i>
+                                <span>Jadual Program & Aktiviti (<span id="calCount">0</span> Rekod)</span>
+                            </h3>
+                            <span id="calActiveFilterTag" class="text-xs bg-brand-100 text-brand-800 px-2.5 py-0.5 rounded-full font-bold">Semua Rekod</span>
+                        </div>
+
+                        <div id="calendarAgendaContainer" class="divide-y divide-slate-100 p-2 sm:p-4 space-y-3">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Monthly Calendar Widget (Right Column) -->
+                <div class="space-y-4">
+                    <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2" id="widgetMonthTitle">
+                                <i class="fa-regular fa-calendar-days text-brand-600"></i>
+                                <span>Paparan Bulan</span>
+                            </h3>
+                            <div class="flex gap-1">
+                                <button onclick="shiftWidgetMonth(-1)" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg text-xs"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button onclick="shiftWidgetMonth(1)" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg text-xs"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Days Header -->
+                        <div class="grid grid-cols-7 gap-1 text-center font-bold text-[10px] uppercase text-slate-500 mb-2">
+                            <span class="text-red-500">Ahd</span>
+                            <span>Isn</span>
+                            <span>Sel</span>
+                            <span>Rab</span>
+                            <span>Kha</span>
+                            <span>Jum</span>
+                            <span class="text-indigo-600">Sab</span>
+                        </div>
+
+                        <!-- Grid Days -->
+                        <div id="widgetGridDays" class="grid grid-cols-7 gap-1 text-center text-xs">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Program Summary Statistics Card -->
+                    <div class="bg-gradient-to-br from-brand-900 to-brand-800 text-white p-5 rounded-2xl shadow-md space-y-3">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-brand-200 border-b border-brand-700/50 pb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>Ringkasan Aktiviti Sekolah</span>
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div class="bg-white/10 p-3 rounded-xl border border-white/10">
+                                <span class="text-xs text-brand-200 block">Jumlah Program</span>
+                                <span id="statTotalProgram" class="text-2xl font-black">0</span>
+                            </div>
+                            <div class="bg-white/10 p-3 rounded-xl border border-white/10">
+                                <span class="text-xs text-brand-200 block">Unit Kokurikulum</span>
+                                <span id="statKoku" class="text-2xl font-black">0</span>
+                            </div>
+                            <div class="bg-white/10 p-3 rounded-xl border border-white/10">
+                                <span class="text-xs text-brand-200 block">Unit Kurikulum</span>
+                                <span id="statKuri" class="text-2xl font-black">0</span>
+                            </div>
+                            <div class="bg-white/10 p-3 rounded-xl border border-white/10">
+                                <span class="text-xs text-brand-200 block">Unit HEM</span>
+                                <span id="statHem" class="text-2xl font-black">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- VIEW / PRINT MODAL -->
+    <div id="viewModal" class="fixed inset-0 bg-slate-900/70 z-50 hidden backdrop-blur-sm overflow-y-auto p-4 sm:p-6 flex justify-center items-start">
+        <div class="bg-slate-200 rounded-2xl max-w-5xl w-full my-8 shadow-2xl overflow-hidden flex flex-col">
+            <!-- Modal Header Toolbar -->
+            <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center no-print sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <span class="bg-brand-500 text-white font-bold text-xs px-2.5 py-1 rounded-md uppercase tracking-wider">Pratonton Cetakan A4</span>
+                    <h3 class="font-bold text-sm sm:text-base text-slate-100" id="modalTitle">Laporan One Page Report</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="triggerPrintModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak Laporan (A4)</span>
+                    </button>
+                    <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white rounded-lg transition-all">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content (A4 Paper Container) -->
+            <div class="p-4 sm:p-8 bg-slate-300 overflow-x-auto flex justify-center">
+                
+                <!-- PRINT CONTENT AREA -->
+                <div id="printContent" class="print-content a4-page">
+                    <div class="school-frame">
+                        <div>
+                            <!-- School Header Banner -->
+                            <div class="border-b-2 border-slate-900 pb-3 mb-3 flex items-center justify-between gap-4">
+                                <img src="https://iili.io/n5OSeAg.md.png" alt="Lencana SMK TAMAN NUSA JAYA" class="h-16 w-auto object-contain" onerror="this.src='https://placehold.co/100x100/0284c7/fff?text=SMKTNJ'">
+                                <div class="text-center flex-1">
+                                    <h2 class="text-lg font-black tracking-wider text-slate-900 uppercase">SMK TAMAN NUSA JAYA</h2>
+                                    <p class="text-[9.5pt] font-extrabold text-brand-800 uppercase tracking-wide">LAPORAN DOKUMENTASI RINGKAS / ONE PAGE REPORT (OPR)</p>
+                                </div>
+                                <div class="text-right text-[9pt] font-mono">
+                                    <span id="viewUnitBadge" class="inline-block bg-brand-800 text-white text-[8.5pt] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">KOKURIKULUM</span>
+                                </div>
+                            </div>
+
+                            <!-- Program Metadata Grid Table -->
+                            <table class="w-full border-collapse border border-slate-400 text-[9pt] mb-3 bg-white shadow-sm">
+                                <tbody>
+                                    <tr class="border-b border-slate-300">
+                                        <td class="bg-slate-100 font-bold p-2 w-32 border-r border-slate-300 text-slate-800 uppercase">NAMA PROGRAM</td>
+                                        <td id="viewNamaProgram" class="p-2 font-extrabold text-slate-900 uppercase" colspan="3">-</td>
+                                    </tr>
+                                    <tr class="border-b border-slate-300">
+                                        <td class="bg-slate-100 font-bold p-2 border-r border-slate-300 text-slate-800 uppercase">TARIKH & HARI</td>
+                                        <td id="viewTarikh" class="p-2 border-r border-slate-300 font-semibold text-slate-800">-</td>
+                                        <td class="bg-slate-100 font-bold p-2 w-28 border-r border-slate-300 text-slate-800 uppercase">TEMPAT</td>
+                                        <td id="viewTempat" class="p-2 font-semibold text-slate-800">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="bg-slate-100 font-bold p-2 border-r border-slate-300 text-slate-800 uppercase">UNIT / SASARAN</td>
+                                        <td id="viewSasaran" class="p-2 font-semibold text-slate-800" colspan="3">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Qualitative Content Grid (2 Columns, Full Input Space) -->
+                            <div class="grid grid-cols-2 gap-3 mb-3 text-[8.5pt]">
+                                <!-- Left Column: Objektif & Kekuatan -->
+                                <div class="space-y-3 flex flex-col justify-between">
+                                    <div class="border border-slate-300 rounded-lg p-3 bg-white shadow-sm h-full">
+                                        <h4 class="font-bold text-slate-900 border-b border-slate-200 pb-1 mb-2 flex items-center gap-1.5 uppercase text-[8.5pt]">
+                                            <i class="fa-solid fa-bullseye text-brand-600"></i> OBJEKTIF PROGRAM
+                                        </h4>
+                                        <div id="viewObjektif" class="whitespace-pre-line text-slate-800 leading-relaxed font-normal text-justify">-</div>
+                                    </div>
+
+                                    <div class="border border-emerald-300 rounded-lg p-3 bg-emerald-50/40 shadow-sm h-full">
+                                        <h4 class="font-bold text-emerald-900 border-b border-emerald-200 pb-1 mb-2 flex items-center gap-1.5 uppercase text-[8.5pt]">
+                                            <i class="fa-solid fa-thumbs-up text-emerald-700"></i> KEKUATAN PROGRAM
+                                        </h4>
+                                        <div id="viewKekuatan" class="whitespace-pre-line text-slate-800 leading-relaxed font-normal text-justify">-</div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: Kelemahan & Penambahbaikan -->
+                                <div class="space-y-3 flex flex-col justify-between">
+                                    <div class="border border-amber-300 rounded-lg p-3 bg-amber-50/40 shadow-sm h-full">
+                                        <h4 class="font-bold text-amber-900 border-b border-amber-200 pb-1 mb-2 flex items-center gap-1.5 uppercase text-[8.5pt]">
+                                            <i class="fa-solid fa-triangle-exclamation text-amber-700"></i> KELEMAHAN / MASALAH
+                                        </h4>
+                                        <div id="viewKelemahan" class="whitespace-pre-line text-slate-800 leading-relaxed font-normal text-justify">-</div>
+                                    </div>
+
+                                    <div class="border border-blue-300 rounded-lg p-3 bg-blue-50/40 shadow-sm h-full">
+                                        <h4 class="font-bold text-blue-900 border-b border-blue-200 pb-1 mb-2 flex items-center gap-1.5 uppercase text-[8.5pt]">
+                                            <i class="fa-solid fa-chart-line text-blue-700"></i> CADANGAN PENAMBAHBAIKAN
+                                        </h4>
+                                        <div id="viewPenambahbaikan" class="whitespace-pre-line text-slate-800 leading-relaxed font-normal text-justify">-</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3 Photos Grid -->
+                            <div class="border border-slate-300 rounded-lg p-2.5 mb-2 bg-white shadow-sm">
+                                <h4 class="font-bold text-slate-900 border-b border-slate-200 pb-1 mb-2 text-[8.5pt] uppercase flex items-center gap-1.5">
+                                    <i class="fa-solid fa-camera text-slate-700"></i> DOKUMENTASI BERGAMBAR
+                                </h4>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <div class="border border-slate-200 rounded overflow-hidden h-36 bg-slate-100 flex items-center justify-center shadow-inner">
+                                        <img id="viewImg1" src="" alt="Gambar 1" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="border border-slate-200 rounded overflow-hidden h-36 bg-slate-100 flex items-center justify-center shadow-inner">
+                                        <img id="viewImg2" src="" alt="Gambar 2" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="border border-slate-200 rounded overflow-hidden h-36 bg-slate-100 flex items-center justify-center shadow-inner">
+                                        <img id="viewImg3" src="" alt="Gambar 3" class="w-full h-full object-cover">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Tandatangan -->
+                        <div class="pt-3 border-t-2 border-slate-300 grid grid-cols-2 gap-6 text-center text-[9pt] mt-auto">
+                            <!-- Disediakan Oleh -->
+                            <div class="flex flex-col items-center justify-end">
+                                <p class="font-bold text-slate-900 uppercase tracking-wider text-[8.5pt]">DISEDIAKAN OLEH:</p>
+                                <div class="h-12"></div> <!-- Ruang Tandatangan -->
+                                <p id="viewNamaGuru" class="font-extrabold text-slate-900 uppercase underline text-[9.5pt] font-sans">-</p>
+                                <p id="viewJawatanGuru" class="text-slate-700 font-medium text-[8.5pt]">-</p>
+                            </div>
+
+                            <!-- Disahkan Oleh -->
+                            <div class="border-l border-slate-300 pl-6">
+                                <p class="font-bold text-slate-900 uppercase tracking-wider text-[8.5pt] mb-2">DISAHKAN OLEH:</p>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="flex flex-col items-center justify-end">
+                                        <div class="h-12"></div> <!-- Ruang Tandatangan 1 -->
+                                        <div class="w-full border-t border-slate-700 pt-1"></div>
+                                    </div>
+                                    <div class="flex flex-col items-center justify-end">
+                                        <div class="h-12"></div> <!-- Ruang Tandatangan 2 -->
+                                        <div class="w-full border-t border-slate-700 pt-1"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION & CONSTANTS
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOlRNws4S6T_FzS3D6m3K7_Xv8x2Yl8tCNQ-ou2aL2poKogLkzOKzwHDe3qx3qNlN2GQ/exec";
+        const SHEET_ID = "1rVUp83WjhNLfuuxh-CW3PhEVQXTlD5ch0PKvSgptOuE";
+        const DRIVE_FOLDER_ID = "1iYKu-k_i32uvPr2dmOkCjV3U020pCwnW";
+
+        // APP STATE
+        let reportsData = [];
+        let imageBase64List = ["", "", ""];
+        let currentActiveReport = null;
+        let widgetCurrentMonth = new Date().getMonth();
+        let widgetCurrentYear = new Date().getFullYear();
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLocalReports();
+            fetchReportsFromAppsScript();
+        });
+
+        // HARI HELPER IN MALAY
+        function getMalayDayName(dateStr) {
+            if (!dateStr) return '';
+            let d;
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                const parts = dateStr.split('-');
+                d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            } else if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+                const parts = dateStr.split('/');
+                d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            } else {
+                d = new Date(dateStr);
+            }
+            if (isNaN(d.getTime())) return '';
+            const daysMalay = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
+            return daysMalay[d.getDay()];
+        }
+
+        function formatDateDisplay(dateStr, includeDay = true) {
+            if (!dateStr) return '';
+            const dayName = getMalayDayName(dateStr);
+            let formattedDate = '';
+
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                const parts = dateStr.split('-');
+                formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            } else if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+                formattedDate = dateStr;
+            } else {
+                const d = new Date(dateStr);
+                if (!isNaN(d.getTime())) {
+                    const day = String(d.getDate()).padStart(2, '0');
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const year = d.getFullYear();
+                    formattedDate = `${day}/${month}/${year}`;
+                } else {
+                    formattedDate = dateStr;
+                }
+            }
+
+            if (includeDay && dayName) {
+                return `${formattedDate} (${dayName})`;
+            }
+            return formattedDate;
+        }
+
+        function updateDayLabels() {
+            const tMula = document.getElementById('tarikhMula').value;
+            const tAkhir = document.getElementById('tarikhAkhir').value;
+
+            const lblMula = document.getElementById('dayLabelMula');
+            const lblAkhir = document.getElementById('dayLabelAkhir');
+
+            if (tMula) {
+                lblMula.innerText = `Hari: ${getMalayDayName(tMula)}`;
+            } else {
+                lblMula.innerText = '';
+            }
+
+            if (tAkhir) {
+                lblAkhir.innerText = `Hari: ${getMalayDayName(tAkhir)}`;
+            } else {
+                lblAkhir.innerText = '';
+            }
+        }
+
+        // TAB SWITCHING FUNCTION
+        function switchTab(tab) {
+            const tabForm = document.getElementById('tabForm');
+            const tabList = document.getElementById('tabList');
+            const tabCalendar = document.getElementById('tabCalendar');
+
+            const tabFormBtn = document.getElementById('tabFormBtn');
+            const tabListBtn = document.getElementById('tabListBtn');
+            const tabCalendarBtn = document.getElementById('tabCalendarBtn');
+
+            const inactiveClass = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-brand-100 hover:text-white transition-all duration-200 flex items-center gap-2";
+            const activeClass = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-2 bg-white text-brand-900 shadow";
+
+            tabForm.classList.add('hidden');
+            tabList.classList.add('hidden');
+            tabCalendar.classList.add('hidden');
+
+            tabFormBtn.className = inactiveClass;
+            tabListBtn.className = inactiveClass;
+            tabCalendarBtn.className = inactiveClass;
+
+            if (tab === 'form') {
+                tabForm.classList.remove('hidden');
+                tabFormBtn.className = activeClass;
+            } else if (tab === 'list') {
+                tabList.classList.remove('hidden');
+                tabListBtn.className = activeClass;
+                renderReportsList();
+            } else if (tab === 'calendar') {
+                tabCalendar.classList.remove('hidden');
+                tabCalendarBtn.className = activeClass;
+                renderCalendarView();
+            }
+        }
+
+        function handleUnitChange() {
+            const unitSelect = document.getElementById('unit');
+            const customInput = document.getElementById('customUnitInput');
+            if (unitSelect.value === 'Lain-lain') {
+                customInput.classList.remove('hidden');
+                customInput.required = true;
+                customInput.focus();
+            } else {
+                customInput.classList.add('hidden');
+                customInput.required = false;
+                customInput.value = '';
+            }
+        }
+
+        function getEffectiveUnit() {
+            const unitSelect = document.getElementById('unit');
+            if (unitSelect.value === 'Lain-lain') {
+                return document.getElementById('customUnitInput').value.trim() || 'Lain-lain';
+            }
+            return unitSelect.value;
+        }
+
+        function setUnitValue(unitVal) {
+            const unitSelect = document.getElementById('unit');
+            const customInput = document.getElementById('customUnitInput');
+            
+            const existingOpt = Array.from(unitSelect.options).find(opt => opt.value === unitVal);
+            if (existingOpt) {
+                unitSelect.value = unitVal;
+                customInput.classList.add('hidden');
+                customInput.required = false;
+            } else if (unitVal) {
+                unitSelect.value = "Lain-lain";
+                customInput.classList.remove('hidden');
+                customInput.value = unitVal;
+                customInput.required = true;
+            } else {
+                unitSelect.value = "";
+                customInput.classList.add('hidden');
+                customInput.required = false;
+            }
+        }
+
+        // IMAGE HANDLING & PREVIEW
+        function previewImage(input, index) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (file.size > 4 * 1024 * 1024) {
+                showToast("Saiz gambar terlalu besar (Maksimum 4MB)", "error");
+                input.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const base64Str = e.target.result;
+                imageBase64List[index - 1] = base64Str;
+
+                document.getElementById(`imgPreview${index}`).src = base64Str;
+                document.getElementById(`imgPreviewContainer${index}`).classList.remove('hidden');
+                document.getElementById(`imgUploadLabel${index}`).classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage(index) {
+            imageBase64List[index - 1] = "";
+            document.getElementById(`imageInput${index}`).value = "";
+            document.getElementById(`imgPreview${index}`).src = "";
+            document.getElementById(`imgPreviewContainer${index}`).classList.add('hidden');
+            document.getElementById(`imgUploadLabel${index}`).classList.remove('hidden');
+        }
+
+        // =========================================================
+        // PENJANAAN ULASAN AUTOMATIK TANPA AI
+        // Sistem memilih ayat daripada bank template berdasarkan
+        // jenis program, unit, tempat dan sasaran yang dimasukkan.
+        // =========================================================
+
+        let templateGenerationCount = 0;
+
+        function pickUnique(items, count = 3) {
+            const copy = [...items];
+            // Fisher-Yates shuffle
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy.slice(0, Math.min(count, copy.length));
+        }
+
+        function formatNumbered(items) {
+            return items.map((item, index) => `${index + 1}. ${item}`).join('\n');
+        }
+
+        function fillTemplate(text, ctx) {
+            return text
+                .replaceAll('{program}', ctx.program)
+                .replaceAll('{unit}', ctx.unit)
+                .replaceAll('{tempat}', ctx.tempat)
+                .replaceAll('{sasaran}', ctx.sasaran);
+        }
+
+        function detectProgramCategory(programName, unitName) {
+            const text = `${programName} ${unitName}`.toLowerCase();
+
+            const rules = [
+                { key: 'keagamaan', words: ['maulid', 'maulidur', 'israk', 'mikraj', 'ramadan', 'ramadhan', 'quran', 'al-quran', 'solat', 'doa', 'hafazan', 'khatam', 'agama', 'islam', 'nuzul', 'hijrah', 'muharram', 'ibadah'] },
+                { key: 'sukan', words: ['sukan', 'sukaneka', 'olahraga', 'bola', 'futsal', 'badminton', 'renang', 'senamrobik', 'kecergasan', 'larian', 'merentas desa', 'permainan', 'pertandingan sukan'] },
+                { key: 'akademik', words: ['akademik', 'literasi', 'numerasi', 'membaca', 'menulis', 'mengira', 'kuiz', 'bahasa', 'matematik', 'sains', 'pembelajaran', 'kelas tambahan', 'kecemerlangan', 'teknik menjawab', 'pemulihan'] },
+                { key: 'stem', words: ['stem', 'robot', 'robotik', 'inovasi', 'eksperimen', 'teknologi', 'coding', 'pengaturcaraan', 'rekacipta', 'reka cipta', 'sains fest', 'projek sains'] },
+                { key: 'lawatan', words: ['lawatan', 'rombongan', 'kunjungan', 'zoo', 'muzium', 'kilang', 'balai', 'pusat sains', 'field trip', 'jelajah'] },
+                { key: 'kesihatan', words: ['kesihatan', 'doktor', 'gigi', 'kebersihan', 'pemakanan', 'sihat', 'keselamatan', 'kuman', 'denggi', 'ceramah kesihatan', 'senaman'] },
+                { key: 'komuniti', words: ['gotong-royong', 'gotong royong', 'komuniti', 'ibu bapa', 'waris', 'pibg', 'sukarelawan', 'keceriaan', 'amal', 'khidmat masyarakat'] },
+                { key: 'sambutan', words: ['sambutan', 'kemerdekaan', 'merdeka', 'hari malaysia', 'hari guru', 'hari kanak', 'anugerah', 'graduasi', 'konvokesyen', 'apresiasi', 'jamuan', 'raya', 'aidilfitri'] },
+                { key: 'pertandingan', words: ['pertandingan', 'kejohanan', 'festival', 'karnival', 'persembahan', 'nasyid', 'pidato', 'bercerita', 'mewarna', 'mewarnai', 'hafazan', 'tilawah'] }
+            ];
+
+            for (const rule of rules) {
+                if (rule.words.some(word => text.includes(word))) return rule.key;
+            }
+
+            if (text.includes('kurikulum')) return 'akademik';
+            if (text.includes('kokurikulum')) return 'pertandingan';
+            if (text.includes('hal ehwal murid') || text.includes('hem')) return 'kesihatan';
+            return 'umum';
+        }
+
+        const TEMPLATE_BANK = {
+            umum: {
+                objectives: [
+                    'Memastikan pelaksanaan {program} dapat dijalankan secara terancang, tersusun dan memberi manfaat kepada {sasaran}.',
+                    'Meningkatkan penglibatan aktif {sasaran} melalui aktiviti yang bersesuaian dengan matlamat {program}.',
+                    'Memberi pengalaman pembelajaran dan pendedahan yang bermakna kepada {sasaran} sepanjang pelaksanaan {program}.',
+                    'Memupuk nilai kerjasama, disiplin, keyakinan diri dan tanggungjawab dalam kalangan peserta melalui {program}.',
+                    'Mewujudkan suasana program yang menyeronokkan, selamat dan kondusif untuk perkembangan peserta secara menyeluruh.',
+                    'Mengukuhkan hubungan serta kerjasama antara peserta, guru dan pihak yang terlibat dalam menjayakan {program}.',
+                    'Mencapai matlamat {unit} melalui pelaksanaan aktiviti yang sistematik dan berfokus kepada keperluan peserta.',
+                    'Memberi ruang kepada peserta untuk mengembangkan potensi, bakat dan kemahiran melalui pengalaman secara langsung.'
+                ],
+                strengths: [
+                    'Kerjasama yang baik daripada guru, peserta dan pihak yang terlibat membantu kelancaran {program}.',
+                    'Perancangan awal yang tersusun memudahkan pembahagian tugas dan perjalanan aktiviti mengikut jadual.',
+                    'Penglibatan peserta yang aktif menjadikan suasana program lebih ceria, interaktif dan bermakna.',
+                    'Komunikasi yang berkesan antara jawatankuasa membantu mengurangkan kekeliruan semasa pelaksanaan aktiviti.',
+                    'Kemudahan di {tempat} dapat digunakan dengan baik bagi menyokong perjalanan program.',
+                    'Aktiviti yang dilaksanakan bersesuaian dengan tahap dan keperluan {sasaran}.',
+                    'Komitmen jawatankuasa dalam melaksanakan tugasan masing-masing menyumbang kepada kelancaran keseluruhan program.',
+                    'Susunan aktiviti yang jelas membolehkan peserta mengikuti program dengan lebih teratur.'
+                ],
+                issuePairs: [
+                    ['Masa pelaksanaan bagi sesetengah aktiviti agak terhad menyebabkan beberapa slot perlu dijalankan dengan lebih pantas.', 'Menyusun semula tempoh setiap slot dan menyediakan masa penampan supaya aktiviti dapat dilaksanakan dengan lebih selesa.'],
+                    ['Terdapat peserta yang memerlukan penerangan tambahan sebelum dapat mengikuti aktiviti dengan lancar.', 'Menyediakan arahan ringkas, demonstrasi awal atau bahan panduan visual sebelum aktiviti dimulakan.'],
+                    ['Pergerakan peserta antara aktiviti mengambil sedikit masa dan menjejaskan kelancaran jadual.', 'Menetapkan laluan, kumpulan dan guru penyelaras lebih awal bagi mempercepat pergerakan peserta.'],
+                    ['Sebahagian peralatan atau bahan perlu dikongsi sehingga menyebabkan masa menunggu bagi sesetengah peserta.', 'Menambah bilangan set bahan atau mengatur aktiviti secara stesen untuk mengurangkan masa menunggu.'],
+                    ['Koordinasi pada fasa awal program mengambil sedikit masa kerana melibatkan beberapa pihak.', 'Mengadakan taklimat ringkas dan pembahagian tugasan yang lebih jelas sebelum program bermula.'],
+                    ['Dokumentasi program sukar dilaksanakan serentak ketika guru sedang mengurus peserta.', 'Melantik petugas khusus dokumentasi atau menyediakan jadual giliran mengambil gambar dan catatan program.'],
+                    ['Tahap penglibatan peserta tidak sama bagi setiap aktiviti yang dijalankan.', 'Mempelbagaikan kaedah penyertaan dan memberi peranan khusus supaya lebih ramai peserta terlibat secara aktif.']
+                ]
+            },
+
+            keagamaan: {
+                objectives: [
+                    'Meningkatkan kefahaman {sasaran} terhadap nilai, pengajaran dan amalan Islam yang diketengahkan melalui {program}.',
+                    'Membentuk sahsiah, adab dan kecintaan terhadap ajaran Islam melalui pengisian yang sesuai dengan usia peserta.',
+                    'Memberi peluang kepada peserta menghayati amalan keagamaan secara praktikal dalam suasana yang terancang dan menyeronokkan.',
+                    'Memupuk rasa syukur, hormat-menghormati dan kebersamaan dalam kalangan warga sekolah melalui {program}.',
+                    'Menggalakkan peserta mengamalkan nilai murni yang dipelajari dalam kehidupan harian di sekolah dan di rumah.',
+                    'Mewujudkan suasana pembelajaran Islam yang menarik supaya penghayatan peserta dapat diperkukuhkan.'
+                ],
+                strengths: [
+                    'Pengisian program yang dekat dengan pengalaman harian peserta memudahkan mereka memahami mesej yang disampaikan.',
+                    'Peserta menunjukkan minat dan kesungguhan ketika mengikuti aktiviti keagamaan yang disediakan.',
+                    'Bimbingan guru yang jelas membantu peserta melaksanakan aktiviti dengan tertib dan yakin.',
+                    'Suasana program yang tenang dan tersusun menyokong proses penghayatan nilai-nilai Islam.',
+                    'Penggunaan aktiviti praktikal, nyanyian, hafazan atau penceritaan menjadikan pengisian lebih menarik untuk kanak-kanak.',
+                    'Kerjasama guru dan warga sekolah membantu memastikan perjalanan {program} berlangsung dengan lancar.'
+                ],
+                issuePairs: [
+                    ['Tahap kefahaman dan penguasaan peserta terhadap pengisian keagamaan adalah berbeza-beza.', 'Menyediakan aktiviti berperingkat dan bimbingan mengikut tahap supaya semua peserta dapat mengikuti pengisian dengan baik.'],
+                    ['Tempoh tumpuan peserta yang masih muda menyebabkan sesetengah pengisian perlu dipendekkan.', 'Memecahkan pengisian kepada slot pendek yang diselang-selikan dengan aktiviti interaktif, lagu atau pergerakan.'],
+                    ['Sebahagian peserta masih memerlukan bimbingan rapat ketika melaksanakan amali atau bacaan.', 'Menambah fasilitator atau membentuk kumpulan kecil supaya bimbingan dapat diberikan dengan lebih berfokus.'],
+                    ['Ruang pelaksanaan agak terhad untuk aktiviti berkumpulan yang melibatkan semua peserta serentak.', 'Membahagikan peserta kepada beberapa kumpulan atau menggunakan ruang berasingan mengikut kesesuaian aktiviti.'],
+                    ['Bahan bantu mengajar yang digunakan masih boleh dipelbagaikan untuk menarik perhatian peserta.', 'Menambah kad visual, bahan maujud, video pendek atau aktiviti hands-on yang berkaitan dengan pengisian.']
+                ]
+            },
+
+            sukan: {
+                objectives: [
+                    'Meningkatkan kecergasan fizikal, koordinasi pergerakan dan perkembangan motor kasar {sasaran} melalui {program}.',
+                    'Memupuk semangat kesukanan, disiplin dan persaingan sihat dalam kalangan peserta.',
+                    'Memberi peluang kepada peserta menunjukkan kebolehan serta keyakinan diri melalui aktiviti sukan dan permainan.',
+                    'Membina kemahiran bekerjasama, mematuhi arahan dan menghormati rakan sepanjang aktiviti berlangsung.',
+                    'Mewujudkan pengalaman aktiviti fizikal yang menyeronokkan dan sesuai dengan tahap perkembangan kanak-kanak.',
+                    'Menggalakkan amalan gaya hidup aktif dan sihat melalui penyertaan dalam aktiviti fizikal yang terancang.'
+                ],
+                strengths: [
+                    'Peserta menunjukkan semangat dan keterujaan yang tinggi sepanjang aktiviti sukan dijalankan.',
+                    'Aktiviti yang dipilih bersesuaian dengan tahap fizikal dan kebolehan peserta.',
+                    'Kerjasama guru dalam mengawal stesen dan pergerakan peserta membantu program berjalan dengan selamat.',
+                    'Pembahagian kumpulan yang jelas memudahkan pengurusan peserta dan perjalanan acara.',
+                    'Penggunaan ruang di {tempat} membolehkan aktiviti fizikal dijalankan dengan lebih teratur.',
+                    'Semangat sokongan antara peserta menjadikan suasana program lebih positif dan menyeronokkan.'
+                ],
+                issuePairs: [
+                    ['Keadaan cuaca boleh mempengaruhi keselesaan dan perjalanan aktiviti luar.', 'Menyediakan pelan alternatif di ruang berbumbung serta menyusun waktu aktiviti bagi mengelakkan cuaca terlalu panas atau hujan.'],
+                    ['Sesetengah peserta memerlukan masa lebih lama untuk memahami peraturan permainan.', 'Melaksanakan demonstrasi ringkas sebelum setiap acara dan menggunakan arahan visual yang mudah difahami.'],
+                    ['Peralatan sukan yang terhad menyebabkan beberapa kumpulan perlu menunggu giliran.', 'Menambah peralatan asas atau menggunakan sistem stesen secara bergilir bagi mengurangkan masa menunggu.'],
+                    ['Perbezaan tahap kebolehan fizikal peserta menyebabkan kelajuan menyelesaikan aktiviti tidak sama.', 'Mengubah suai tahap kesukaran aktiviti dan memberi sokongan tambahan kepada peserta yang memerlukan.'],
+                    ['Kawalan keselamatan perlu diberi perhatian apabila ramai peserta bergerak serentak.', 'Menambah zon keselamatan, penanda laluan dan guru pemantau pada setiap kawasan aktiviti.']
+                ]
+            },
+
+            akademik: {
+                objectives: [
+                    'Mengukuhkan kefahaman {sasaran} terhadap kemahiran pembelajaran yang diberi penekanan dalam {program}.',
+                    'Meningkatkan minat dan motivasi peserta untuk belajar melalui aktiviti yang lebih interaktif dan menyeronokkan.',
+                    'Memberi peluang kepada peserta mengaplikasikan pengetahuan dan kemahiran dalam situasi pembelajaran yang pelbagai.',
+                    'Mengenal pasti tahap penguasaan peserta serta memberi ruang pengukuhan mengikut keperluan pembelajaran.',
+                    'Membina keyakinan peserta untuk memberi respons, mencuba tugasan dan berkongsi idea semasa aktiviti.',
+                    'Menyokong perkembangan literasi, numerasi, komunikasi dan kemahiran berfikir melalui pengalaman pembelajaran bermakna.'
+                ],
+                strengths: [
+                    'Aktiviti pembelajaran yang pelbagai membantu mengekalkan minat dan tumpuan peserta.',
+                    'Bimbingan guru yang berterusan memudahkan peserta memahami tugasan dan mencapai objektif aktiviti.',
+                    'Penggunaan bahan visual dan aktiviti hands-on menjadikan konsep lebih mudah difahami oleh peserta.',
+                    'Peserta menunjukkan keberanian untuk mencuba dan memberi respons sepanjang aktiviti.',
+                    'Aktiviti disusun mengikut tahap peserta supaya pembelajaran dapat berlaku secara lebih berfokus.',
+                    'Suasana pembelajaran yang positif menggalakkan interaksi dan kerjasama antara peserta.'
+                ],
+                issuePairs: [
+                    ['Tahap penguasaan peserta berbeza menyebabkan kadar menyiapkan aktiviti tidak seragam.', 'Menyediakan tugasan berbeza aras dan aktiviti pengayaan atau bimbingan mengikut tahap penguasaan peserta.'],
+                    ['Sebahagian peserta memerlukan bimbingan individu untuk memahami arahan atau konsep tertentu.', 'Membentuk kumpulan kecil dan menyediakan sesi bimbingan ringkas secara berfokus semasa aktiviti.'],
+                    ['Tempoh aktiviti agak terhad untuk memberi peluang kepada semua peserta berkongsi hasil kerja.', 'Menyusun aktiviti mengikut keutamaan dan menyediakan sesi perkongsian secara kumpulan untuk menjimatkan masa.'],
+                    ['Bahan pembelajaran yang terhad perlu digunakan secara bergilir antara kumpulan.', 'Menyediakan salinan atau set bahan tambahan serta menggunakan bahan digital atau bahan mudah guna semula.'],
+                    ['Tumpuan peserta menurun apabila aktiviti berlangsung terlalu lama tanpa perubahan kaedah.', 'Mempelbagaikan aktiviti dengan pergerakan, permainan ringkas dan penggunaan bahan visual pada sela masa yang sesuai.']
+                ]
+            },
+
+            stem: {
+                objectives: [
+                    'Mendedahkan {sasaran} kepada kemahiran meneroka, mencuba dan menyelesaikan masalah melalui aktiviti {program}.',
+                    'Merangsang sifat ingin tahu dan pemikiran kreatif peserta melalui pengalaman pembelajaran berasaskan penerokaan.',
+                    'Memberi peluang kepada peserta menggunakan bahan dan peralatan secara selamat dalam aktiviti hands-on.',
+                    'Membina kemahiran membuat pemerhatian, mencuba idea dan berkongsi hasil dengan rakan.',
+                    'Menggalakkan peserta menghasilkan penyelesaian atau ciptaan mudah melalui proses mencuba dan menambah baik.',
+                    'Mewujudkan pengalaman STEM yang menyeronokkan dan sesuai dengan tahap perkembangan peserta.'
+                ],
+                strengths: [
+                    'Aktiviti hands-on berjaya menarik minat dan rasa ingin tahu peserta.',
+                    'Peserta menunjukkan kesungguhan mencuba bahan dan mencari penyelesaian semasa aktiviti.',
+                    'Penggunaan bahan maujud membantu peserta memahami konsep melalui pengalaman secara langsung.',
+                    'Aktiviti berkumpulan menggalakkan komunikasi, perkongsian idea dan kerjasama.',
+                    'Guru dapat membimbing peserta melalui proses mencuba, memerhati dan membuat penambahbaikan.',
+                    'Suasana aktiviti yang eksploratif memberi ruang kepada peserta menghasilkan idea yang pelbagai.'
+                ],
+                issuePairs: [
+                    ['Sebahagian bahan atau peralatan perlu dikongsi sehingga peserta menunggu giliran.', 'Menyediakan lebih banyak set bahan kos rendah atau membahagikan aktiviti kepada stesen kecil.'],
+                    ['Peserta memerlukan pemantauan rapat ketika menggunakan bahan atau peralatan tertentu.', 'Menetapkan peraturan keselamatan yang jelas dan menambah guru pemantau bagi setiap stesen.'],
+                    ['Masa yang tersedia agak singkat untuk peserta menguji dan menambah baik hasil mereka.', 'Memanjangkan tempoh aktiviti atau membahagikan proses pembinaan dan pengujian kepada dua sesi.'],
+                    ['Ada peserta yang cenderung meniru contoh tanpa mencuba idea sendiri.', 'Memberi beberapa pilihan cabaran terbuka dan menggalakkan peserta menerangkan sebab mereka memilih sesuatu reka bentuk.'],
+                    ['Pengurusan bahan selepas aktiviti mengambil masa kerana melibatkan banyak komponen kecil.', 'Menyediakan bekas berlabel dan tugasan mengemas mengikut kumpulan untuk mempercepat proses penyimpanan.']
+                ]
+            },
+
+            lawatan: {
+                objectives: [
+                    'Memberi pengalaman pembelajaran secara langsung kepada {sasaran} melalui pendedahan di {tempat}.',
+                    'Menghubungkan pengetahuan yang dipelajari dengan situasi sebenar melalui aktiviti sepanjang {program}.',
+                    'Meningkatkan kemahiran memerhati, bertanya dan berkomunikasi dalam persekitaran pembelajaran di luar kelas.',
+                    'Memupuk disiplin, tanggungjawab dan kebolehan mengikuti arahan semasa berada di luar kawasan sekolah.',
+                    'Meluaskan pengetahuan dan pengalaman peserta melalui penerokaan tempat serta aktiviti baharu.',
+                    'Mewujudkan pengalaman pembelajaran yang menyeronokkan dan mudah diingati oleh peserta.'
+                ],
+                strengths: [
+                    'Pembelajaran secara langsung membantu peserta mengaitkan pengalaman dengan pengetahuan sedia ada.',
+                    'Peserta menunjukkan rasa ingin tahu dan minat yang tinggi sepanjang lawatan.',
+                    'Kerjasama guru pengiring membantu kawalan pergerakan dan keselamatan peserta.',
+                    'Susunan perjalanan yang terancang memudahkan peserta mengikuti setiap aktiviti yang disediakan.',
+                    'Pendedahan di {tempat} memberi pengalaman baharu yang sukar diperoleh melalui pembelajaran dalam kelas.',
+                    'Interaksi dengan persekitaran sebenar menjadikan pembelajaran lebih bermakna dan menarik.'
+                ],
+                issuePairs: [
+                    ['Pergerakan kumpulan mengambil masa apabila peserta perlu berpindah antara beberapa lokasi.', 'Membahagikan peserta kepada kumpulan kecil dengan guru pengiring tetap dan menetapkan titik berkumpul yang jelas.'],
+                    ['Tahap tumpuan peserta boleh berkurang apabila jadual lawatan terlalu panjang.', 'Menyediakan rehat singkat dan memilih aktiviti utama yang paling sesuai dengan usia peserta.'],
+                    ['Faktor cuaca atau keadaan lokasi boleh mempengaruhi jadual aktiviti.', 'Menyediakan pelan alternatif, peralatan perlindungan dan maklumat cuaca sebelum lawatan dilaksanakan.'],
+                    ['Peserta mudah terpisah daripada kumpulan ketika berada di kawasan yang luas atau sesak.', 'Menggunakan tag nama, sistem pasangan dan semakan bilangan peserta pada setiap pertukaran lokasi.'],
+                    ['Masa penerangan di sesetengah lokasi agak singkat untuk peserta mengemukakan soalan.', 'Menyediakan soalan panduan awal dan sesi refleksi selepas lawatan untuk mengukuhkan pembelajaran.']
+                ]
+            },
+
+            kesihatan: {
+                objectives: [
+                    'Meningkatkan kesedaran {sasaran} tentang kepentingan menjaga kesihatan, kebersihan dan keselamatan diri.',
+                    'Membimbing peserta mengamalkan rutin sihat yang mudah dilakukan dalam kehidupan seharian.',
+                    'Memberi pendedahan kepada peserta tentang langkah pencegahan yang sesuai dengan topik {program}.',
+                    'Membentuk sikap bertanggungjawab terhadap kebersihan diri dan persekitaran.',
+                    'Meningkatkan kefahaman peserta melalui aktiviti praktikal, demonstrasi dan bahan visual yang mudah difahami.',
+                    'Menggalakkan peserta berkongsi amalan sihat dengan keluarga dan rakan selepas program.'
+                ],
+                strengths: [
+                    'Pengisian yang berkaitan dengan kehidupan harian memudahkan peserta memahami mesej kesihatan yang disampaikan.',
+                    'Demonstrasi dan bahan visual membantu peserta mengikuti langkah yang betul dengan lebih jelas.',
+                    'Peserta menunjukkan minat apabila diberi peluang melakukan aktiviti secara praktikal.',
+                    'Bimbingan guru membantu memastikan amalan kebersihan dan keselamatan dilakukan dengan betul.',
+                    'Aktiviti yang ringkas dan berulang membantu peserta mengingati amalan penting.',
+                    'Suasana program yang interaktif menggalakkan peserta bertanya dan memberi respons.'
+                ],
+                issuePairs: [
+                    ['Sebahagian peserta masih memerlukan peringatan berulang untuk mengamalkan langkah yang betul.', 'Mengadakan pengukuhan secara berkala melalui poster, rutin harian dan peringatan visual di kelas.'],
+                    ['Terdapat kekangan bahan untuk demonstrasi apabila semua peserta mencuba serentak.', 'Menyediakan lebih banyak set bahan atau melaksanakan demonstrasi secara kumpulan kecil dan bergilir.'],
+                    ['Peserta mudah hilang fokus apabila penerangan terlalu panjang.', 'Menggunakan penerangan pendek yang diselang-selikan dengan demonstrasi, permainan dan soal jawab.'],
+                    ['Penglibatan keluarga diperlukan untuk memastikan amalan sihat diteruskan di rumah.', 'Menyediakan bahan ringkas atau pesanan kepada ibu bapa supaya amalan yang dipelajari dapat diteruskan di rumah.'],
+                    ['Sesetengah konsep kesihatan sukar difahami tanpa contoh yang konkrit.', 'Menggunakan gambar, simulasi, cerita dan bahan maujud yang sesuai dengan tahap umur peserta.']
+                ]
+            },
+
+            komuniti: {
+                objectives: [
+                    'Memupuk semangat bekerjasama dan rasa tanggungjawab bersama dalam menjayakan {program}.',
+                    'Mengukuhkan hubungan antara sekolah, ibu bapa dan komuniti melalui penglibatan secara langsung.',
+                    'Membentuk sikap prihatin terhadap kebersihan, keceriaan dan kesejahteraan persekitaran.',
+                    'Memberi peluang kepada {sasaran} menyumbang mengikut kemampuan dalam aktiviti yang bermanfaat.',
+                    'Mewujudkan persekitaran yang lebih selesa, ceria dan kondusif hasil kerjasama semua pihak.',
+                    'Menyemai nilai tolong-menolong, hormat dan semangat bermasyarakat dalam kalangan peserta.'
+                ],
+                strengths: [
+                    'Kerjasama antara guru, ibu bapa dan peserta memudahkan tugasan dilaksanakan secara bersama.',
+                    'Pembahagian kawasan atau tugasan yang jelas membantu aktiviti berjalan dengan lebih teratur.',
+                    'Sumbangan tenaga dan bahan daripada pihak terlibat mengurangkan beban pengurusan program.',
+                    'Suasana kerja secara berkumpulan mengeratkan hubungan antara warga sekolah dan komuniti.',
+                    'Peserta dapat melihat hasil aktiviti secara langsung dan memahami kepentingan menjaga persekitaran.',
+                    'Komitmen pihak yang terlibat membantu menyiapkan tugasan mengikut tempoh yang ditetapkan.'
+                ],
+                issuePairs: [
+                    ['Jumlah peralatan yang tersedia tidak mencukupi apabila ramai peserta menjalankan tugas serentak.', 'Menyediakan senarai peralatan lebih awal dan memohon sumbangan atau pinjaman tambahan daripada komuniti.'],
+                    ['Pembahagian tugasan pada awal program mengambil masa kerana melibatkan kumpulan yang ramai.', 'Menetapkan kumpulan, ketua dan kawasan tugas sebelum hari program serta memaklumkannya lebih awal.'],
+                    ['Cuaca boleh menjejaskan aktiviti yang dilaksanakan di kawasan terbuka.', 'Menyediakan pelan kerja alternatif di kawasan berbumbung dan memilih waktu yang lebih sesuai.'],
+                    ['Tahap kemampuan peserta berbeza mengikut usia dan jenis tugasan.', 'Menetapkan tugasan ringan dan selamat untuk kanak-kanak serta tugasan lebih berat kepada orang dewasa.'],
+                    ['Pengurusan sisa selepas aktiviti memerlukan penyelarasan supaya kawasan benar-benar bersih.', 'Menyediakan lokasi pengumpulan sisa yang jelas dan pasukan akhir untuk membuat semakan kebersihan.']
+                ]
+            },
+
+            sambutan: {
+                objectives: [
+                    'Mewujudkan suasana sambutan yang meriah, tersusun dan bermakna untuk {sasaran}.',
+                    'Meningkatkan kefahaman peserta terhadap nilai dan tujuan di sebalik penganjuran {program}.',
+                    'Memberi ruang kepada peserta melibatkan diri dalam aktiviti kreatif, persembahan dan pengalaman bersama.',
+                    'Memupuk rasa kebersamaan, penghargaan dan hubungan positif dalam kalangan warga sekolah.',
+                    'Membina keyakinan peserta melalui peluang mengambil bahagian dalam aktiviti yang disediakan.',
+                    'Menghasilkan pengalaman yang menyeronokkan serta memberi kenangan positif kepada peserta.'
+                ],
+                strengths: [
+                    'Suasana program yang ceria meningkatkan keterujaan dan penglibatan peserta.',
+                    'Hiasan, persembahan dan aktiviti yang disusun membantu menyampaikan tema program dengan jelas.',
+                    'Kerjasama guru dalam menyediakan tempat dan aktiviti menjadikan sambutan lebih teratur.',
+                    'Peserta menunjukkan keyakinan dan minat ketika terlibat dalam persembahan atau aktiviti kumpulan.',
+                    'Penglibatan pelbagai pihak menjadikan program lebih meriah dan bermakna.',
+                    'Susunan acara yang pelbagai membantu mengekalkan minat peserta sepanjang program.'
+                ],
+                issuePairs: [
+                    ['Masa persediaan hiasan dan susun atur tempat agak terhad sebelum program bermula.', 'Menyediakan pelan dekorasi, senarai bahan dan pembahagian tugasan beberapa hari lebih awal.'],
+                    ['Peralihan antara persembahan atau aktiviti mengambil masa dan boleh menyebabkan peserta menunggu.', 'Menyediakan pengacara, susunan giliran dan petugas teknikal yang jelas untuk mempercepat pertukaran slot.'],
+                    ['Ruang peserta dan penonton boleh menjadi sesak apabila semua aktiviti tertumpu di satu kawasan.', 'Menyusun zon tempat duduk dan laluan keluar masuk serta mengehadkan pergerakan semasa acara berlangsung.'],
+                    ['Sesetengah peserta memerlukan latihan tambahan sebelum tampil dalam persembahan.', 'Menetapkan sesi latihan ringkas lebih awal dan memberi peranan mengikut tahap keyakinan peserta.'],
+                    ['Dokumentasi sukar dilakukan apabila program mempunyai banyak aktiviti serentak.', 'Melantik petugas dokumentasi mengikut zon atau menyediakan senarai momen utama yang perlu dirakam.']
+                ]
+            },
+
+            pertandingan: {
+                objectives: [
+                    'Memberi peluang kepada {sasaran} menyertai {program} sebagai medium membina keyakinan dan pengalaman baharu.',
+                    'Mencungkil bakat serta potensi peserta melalui penyertaan dalam aktiviti atau pertandingan yang bersesuaian.',
+                    'Memupuk semangat berusaha, berdisiplin dan menerima keputusan dengan sikap yang positif.',
+                    'Meningkatkan kemahiran peserta melalui latihan, persediaan dan pengalaman semasa program berlangsung.',
+                    'Menggalakkan peserta menunjukkan kebolehan terbaik dalam suasana persaingan yang sihat.',
+                    'Membina semangat berpasukan dan sokongan antara peserta serta guru sepanjang penyertaan.'
+                ],
+                strengths: [
+                    'Peserta menunjukkan komitmen dan keberanian yang baik sepanjang penyertaan dalam {program}.',
+                    'Latihan dan persediaan awal membantu peserta memahami tugasan serta meningkatkan keyakinan.',
+                    'Sokongan guru memberi motivasi kepada peserta untuk memberikan usaha yang terbaik.',
+                    'Penyertaan memberi pengalaman sebenar yang dapat meningkatkan kemahiran dan kematangan peserta.',
+                    'Semangat kerjasama antara peserta membantu persediaan dan pelaksanaan berjalan lebih lancar.',
+                    'Maklum balas selepas aktiviti memberi ruang kepada peserta mengenal pasti perkara yang boleh ditambah baik.'
+                ],
+                issuePairs: [
+                    ['Masa latihan atau persediaan agak terhad sebelum tarikh program.', 'Menyediakan jadual latihan lebih awal dengan sesi pendek tetapi konsisten mengikut keperluan peserta.'],
+                    ['Tahap keyakinan peserta berbeza apabila berhadapan dengan suasana pertandingan atau persembahan.', 'Mengadakan simulasi atau latihan dalam suasana hampir sama dengan keadaan sebenar sebelum program.'],
+                    ['Sesetengah peserta masih memerlukan bimbingan dalam mengurus tekanan dan menunggu giliran.', 'Memberi taklimat ringkas tentang pengurusan emosi, giliran dan sikap positif sebelum aktiviti bermula.'],
+                    ['Peralatan atau bahan pertandingan perlu disemak dengan teliti bagi mengelakkan gangguan semasa program.', 'Menyediakan senarai semak peralatan dan melakukan pemeriksaan akhir sekurang-kurangnya sehari sebelum program.'],
+                    ['Masa menunggu yang panjang boleh menyebabkan peserta hilang fokus.', 'Menyediakan aktiviti ringan, ruang rehat dan jadual giliran yang jelas sepanjang tempoh menunggu.']
+                ]
+            }
+        };
+
+        function generateTemplateContent() {
+            const namaProgram = document.getElementById('namaProgram').value.trim();
+            const unit = getEffectiveUnit();
+            const tempatInput = document.getElementById('tempat').value.trim();
+            const sasaranInput = document.getElementById('sasaran').value.trim();
+
+            if (!namaProgram) {
+                showToast('Sila masukkan Nama Program terlebih dahulu.', 'error');
+                document.getElementById('namaProgram').focus();
+                return;
+            }
+
+            const category = detectProgramCategory(namaProgram, unit);
+            const categoryBank = TEMPLATE_BANK[category] || TEMPLATE_BANK.umum;
+            const genericBank = TEMPLATE_BANK.umum;
+
+            const ctx = {
+                program: namaProgram,
+                unit: unit || 'program sekolah',
+                tempat: tempatInput || 'lokasi program',
+                sasaran: sasaranInput || 'para peserta'
+            };
+
+            // Campurkan template khusus + umum supaya variasi lebih besar.
+            const objectivePool = [...categoryBank.objectives, ...genericBank.objectives];
+            const strengthPool = [...categoryBank.strengths, ...genericBank.strengths];
+            const issuePool = [...categoryBank.issuePairs, ...genericBank.issuePairs];
+
+            const objectives = pickUnique(objectivePool, 3).map(x => fillTemplate(x, ctx));
+            const strengths = pickUnique(strengthPool, 3).map(x => fillTemplate(x, ctx));
+            const selectedPairs = pickUnique(issuePool, 3);
+            const weaknesses = selectedPairs.map(pair => fillTemplate(pair[0], ctx));
+            const improvements = selectedPairs.map(pair => fillTemplate(pair[1], ctx));
+
+            document.getElementById('objektif').value = formatNumbered(objectives);
+            document.getElementById('kekuatan').value = formatNumbered(strengths);
+            document.getElementById('kelemahan').value = formatNumbered(weaknesses);
+            document.getElementById('penambahbaikan').value = formatNumbered(improvements);
+
+            templateGenerationCount += 1;
+            const categoryLabel = {
+                keagamaan: 'Keagamaan', sukan: 'Sukan', akademik: 'Akademik', stem: 'STEM / Inovasi',
+                lawatan: 'Lawatan', kesihatan: 'Kesihatan / Keselamatan', komuniti: 'Komuniti',
+                sambutan: 'Sambutan', pertandingan: 'Pertandingan / Persembahan', umum: 'Umum'
+            }[category] || 'Umum';
+
+            showToast(`Ulasan automatik berjaya dijana (${categoryLabel}). Klik lagi untuk variasi ayat lain.`, 'success');
+        }
+
+        // FORM SUBMISSION (CREATE & UPDATE)
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const editingId = document.getElementById('editingId').value;
+            const isEdit = !!editingId;
+
+            const newReport = {
+                id: isEdit ? editingId : 'OPR-' + Date.now().toString().substr(-6),
+                timestamp: new Date().toLocaleDateString('ms-MY'),
+                namaProgram: document.getElementById('namaProgram').value.trim(),
+                unit: getEffectiveUnit(),
+                tarikhMula: document.getElementById('tarikhMula').value,
+                tarikhAkhir: document.getElementById('tarikhAkhir').value,
+                tempat: document.getElementById('tempat').value.trim(),
+                sasaran: document.getElementById('sasaran').value.trim(),
+                objektif: document.getElementById('objektif') ? document.getElementById('objektif').value.trim() : '',
+                kekuatan: document.getElementById('kekuatan') ? document.getElementById('kekuatan').value.trim() : '',
+                kelemahan: document.getElementById('kelemahan') ? document.getElementById('kelemahan').value.trim() : '',
+                penambahbaikan: document.getElementById('penambahbaikan') ? document.getElementById('penambahbaikan').value.trim() : '',
+                namaGuru: document.getElementById('namaGuru').value.trim(),
+                jawatanGuru: document.getElementById('jawatanGuru').value.trim(),
+                images: [...imageBase64List]
+            };
+
+            // Toggle loading button UI
+            const saveBtn = document.getElementById('saveBtn');
+            const saveBtnText = document.getElementById('saveBtnText');
+            saveBtn.disabled = true;
+            saveBtnText.innerText = "Menyimpan Ke Google Sheet...";
+
+            // 1. Update Local Array
+            if (isEdit) {
+                const idx = reportsData.findIndex(r => r.id === editingId);
+                if (idx !== -1) reportsData[idx] = newReport;
+            } else {
+                reportsData.unshift(newReport);
+            }
+            saveLocalReports();
+            updateReportBadge();
+
+            // 2. Transmit to Google Apps Script Endpoint
+            try {
+                const payload = {
+                    action: isEdit ? 'update' : 'create',
+                    sheetId: SHEET_ID,
+                    folderId: DRIVE_FOLDER_ID,
+                    report: newReport
+                };
+
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                showToast(isEdit ? "Laporan berjaya dikemas kini di Google Sheet!" : "Laporan berjaya disimpan ke Google Sheet & Drive!", "success");
+            } catch (error) {
+                console.warn("Apps Script Call Error:", error);
+                showToast("Disimpan secara tempatan (Google Sheet tidak dapat dihubungi)", "info");
+            } finally {
+                saveBtn.disabled = false;
+                saveBtnText.innerText = "Simpan Laporan Ke Google Sheet";
+                resetForm();
+                switchTab('list');
+            }
+        }
+
+        // RESET FORM
+        function resetForm() {
+            document.getElementById('oprForm').reset();
+            document.getElementById('editingId').value = "";
+            document.getElementById('formTitleBadge').innerText = "Laporan Baru";
+            document.getElementById('formTitleBadge').className = "bg-brand-600 text-white font-bold text-xs uppercase px-3 py-1 rounded-full";
+            document.getElementById('formHeading').innerText = "Maklumat Program & Penilaian OPR Terperinci";
+            document.getElementById('saveBtnText').innerText = "Simpan Laporan Ke Google Sheet";
+            document.getElementById('dayLabelMula').innerText = '';
+            document.getElementById('dayLabelAkhir').innerText = '';
+            handleUnitChange();
+            
+            for (let i = 1; i <= 3; i++) removeImage(i);
+        }
+
+        // RENDER REPORTS LIST (CARD VIEW)
+        function renderReportsList() {
+            const container = document.getElementById('reportsContainer');
+            const emptyState = document.getElementById('emptyState');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const unitVal = document.getElementById('filterUnit').value;
+
+            const filtered = reportsData.filter(item => {
+                const matchesSearch = item.namaProgram.toLowerCase().includes(searchVal) ||
+                                      item.tempat.toLowerCase().includes(searchVal) ||
+                                      item.namaGuru.toLowerCase().includes(searchVal);
+                const matchesUnit = unitVal === "" || item.unit === unitVal;
+                return matchesSearch && matchesUnit;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = "";
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = filtered.map(item => {
+                const displayDateMula = formatDateDisplay(item.tarikhMula, true);
+                const displayDateAkhir = (item.tarikhAkhir && item.tarikhAkhir !== item.tarikhMula) ? formatDateDisplay(item.tarikhAkhir, true) : '';
+
+                return `
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <!-- Card Header -->
+                        <div class="p-4 border-b border-slate-100 flex justify-between items-start gap-2 bg-slate-50/50">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${getUnitBadgeColor(item.unit)}">
+                                ${item.unit}
+                            </span>
+                            <span class="text-[11px] text-slate-400 font-mono">${item.timestamp}</span>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-4 space-y-3">
+                            <h3 class="font-bold text-slate-900 text-base line-clamp-2 leading-snug" title="${item.namaProgram}">
+                                ${item.namaProgram}
+                            </h3>
+                            
+                            <div class="text-xs text-slate-600 space-y-1.5">
+                                <p class="flex items-center gap-2 font-medium text-brand-700">
+                                    <i class="fa-regular fa-calendar-check text-brand-500 w-4"></i>
+                                    <span>${displayDateMula}${displayDateAkhir ? ' hingga ' + displayDateAkhir : ''}</span>
+                                </p>
+                                <p class="flex items-center gap-2">
+                                    <i class="fa-solid fa-location-dot text-brand-500 w-4"></i>
+                                    <span class="truncate">${item.tempat}</span>
+                                </p>
+                                <p class="flex items-center gap-2">
+                                    <i class="fa-solid fa-user-pen text-brand-500 w-4"></i>
+                                    <span class="truncate">${item.namaGuru} (${item.jawatanGuru})</span>
+                                </p>
+                            </div>
+
+                            <!-- Thumbnail Images Row -->
+                            <div class="grid grid-cols-3 gap-1.5 pt-2">
+                                ${item.images && item.images.length > 0 ? item.images.map(img => `
+                                    <div class="h-16 rounded-lg bg-slate-100 overflow-hidden border border-slate-200">
+                                        ${img ? `<img src="${formatImageUrl(img)}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x300/f1f5f9/94a3b8?text=Tiada+Gambar'">` : `<div class="w-full h-full flex items-center justify-center text-slate-300"><i class="fa-solid fa-image text-xs"></i></div>`}
+                                    </div>
+                                `).join('') : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Actions -->
+                    <div class="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
+                        <button onclick="viewReportModal('${item.id}')" class="flex-1 px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-eye"></i>
+                            <span>Buka Laporan</span>
+                        </button>
+                        <button onclick="editReport('${item.id}')" class="px-2.5 py-1.5 bg-slate-200 hover:bg-amber-500 hover:text-white text-slate-700 text-xs font-bold rounded-lg transition-all" title="Edit">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deleteReport('${item.id}')" class="px-2.5 py-1.5 bg-slate-200 hover:bg-red-600 hover:text-white text-slate-700 text-xs font-bold rounded-lg transition-all" title="Padam">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function filterReports() {
+            renderReportsList();
+        }
+
+        function getUnitBadgeColor(unit) {
+            switch (unit) {
+                case 'Kurikulum': return 'bg-blue-100 text-blue-800 border border-blue-200';
+                case 'Kokurikulum': return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+                case 'Hal Ehwal Murid': return 'bg-purple-100 text-purple-800 border border-purple-200';
+                default: return 'bg-slate-100 text-slate-800 border border-slate-200';
+            }
+        }
+
+        // ==========================================
+        // KALENDAR PROGRAM LOGIC & RENDERING
+        // ==========================================
+        function clearCalendarFilters() {
+            document.getElementById('calFilterMonth').value = "ALL";
+            document.getElementById('calFilterYear').value = "2026";
+            document.getElementById('calFilterSpecificDate').value = "";
+            document.getElementById('calFilterUnit').value = "ALL";
+            renderCalendarView();
+        }
+
+        function renderCalendarView() {
+            const monthVal = document.getElementById('calFilterMonth').value;
+            const yearVal = document.getElementById('calFilterYear').value;
+            const specificDate = document.getElementById('calFilterSpecificDate').value;
+            const unitVal = document.getElementById('calFilterUnit').value;
+
+            let filtered = [...reportsData];
+
+            // Filter logic
+            if (specificDate) {
+                filtered = filtered.filter(item => item.tarikhMula === specificDate || item.tarikhAkhir === specificDate);
+            } else {
+                if (monthVal !== "ALL") {
+                    filtered = filtered.filter(item => {
+                        const d = new Date(item.tarikhMula);
+                        return d.getMonth() == parseInt(monthVal);
+                    });
+                }
+                if (yearVal !== "ALL") {
+                    filtered = filtered.filter(item => {
+                        const d = new Date(item.tarikhMula);
+                        return d.getFullYear() == parseInt(yearVal);
+                    });
+                }
+            }
+
+            if (unitVal !== "ALL") {
+                filtered = filtered.filter(item => item.unit === unitVal);
+            }
+
+            // Sort chronologically
+            filtered.sort((a, b) => new Date(a.tarikhMula) - new Date(b.tarikhMula));
+
+            // Update Statistics
+            document.getElementById('calCount').innerText = filtered.length;
+            document.getElementById('statTotalProgram').innerText = reportsData.length;
+            document.getElementById('statKoku').innerText = reportsData.filter(r => r.unit === 'Kokurikulum').length;
+            document.getElementById('statKuri').innerText = reportsData.filter(r => r.unit === 'Kurikulum').length;
+            document.getElementById('statHem').innerText = reportsData.filter(r => r.unit === 'Hal Ehwal Murid').length;
+
+            // Update Tag
+            const activeTag = document.getElementById('calActiveFilterTag');
+            if (specificDate) {
+                activeTag.innerText = `Tarikh: ${formatDateDisplay(specificDate, true)}`;
+            } else if (monthVal !== "ALL") {
+                const monthNames = ["Januari", "Februari", "Mac", "April", "Mei", "Jun", "Julai", "Ogos", "September", "Oktober", "November", "Disember"];
+                activeTag.innerText = `Bulan: ${monthNames[parseInt(monthVal)]} ${yearVal !== "ALL" ? yearVal : ''}`;
+            } else {
+                activeTag.innerText = "Semua Rekod Aktiviti";
+            }
+
+            // Render Agenda List
+            const agendaContainer = document.getElementById('calendarAgendaContainer');
+            if (filtered.length === 0) {
+                agendaContainer.innerHTML = `
+                    <div class="text-center py-10">
+                        <i class="fa-solid fa-calendar-xmark text-4xl text-slate-300 mb-2"></i>
+                        <p class="text-sm font-semibold text-slate-600">Tiada aktiviti ditemui bagi tetapan tarikh/bulan ini.</p>
+                        <p class="text-xs text-slate-400">Sila ubah penapis di atas atau bina laporan baru.</p>
+                    </div>
+                `;
+            } else {
+                agendaContainer.innerHTML = filtered.map(item => {
+                    const dayNameMula = getMalayDayName(item.tarikhMula);
+                    const formattedMula = formatDateDisplay(item.tarikhMula, false);
+                    const isMultiDay = item.tarikhAkhir && item.tarikhAkhir !== item.tarikhMula;
+                    const dayNameAkhir = isMultiDay ? getMalayDayName(item.tarikhAkhir) : '';
+                    const formattedAkhir = isMultiDay ? formatDateDisplay(item.tarikhAkhir, false) : '';
+
+                    return `
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-white hover:border-brand-300 hover:shadow-md transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <!-- Left: Date Badge & Day -->
+                            <div class="flex items-center gap-3 min-w-[210px]">
+                                <div class="bg-brand-800 text-white rounded-xl p-2.5 text-center min-w-[70px] shadow-sm">
+                                    <span class="block text-[10px] font-extrabold uppercase tracking-wider text-brand-200">${dayNameMula}</span>
+                                    <span class="block text-base font-black leading-tight">${formattedMula.split('/')[0]}</span>
+                                    <span class="block text-[10px] text-brand-100 font-mono">${formattedMula.split('/')[1]}/${formattedMula.split('/')[2]}</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-slate-900 block">${dayNameMula}, ${formattedMula}</span>
+                                    ${isMultiDay ? `<span class="text-[11px] text-slate-500 block">hingga ${dayNameAkhir}, ${formattedAkhir}</span>` : ''}
+                                    <span class="inline-block px-2 py-0.5 mt-1 text-[10px] font-bold rounded ${getUnitBadgeColor(item.unit)}">${item.unit}</span>
+                                </div>
+                            </div>
+
+                            <!-- Middle: Details -->
+                            <div class="flex-1 space-y-1">
+                                <h4 class="font-extrabold text-slate-900 text-sm md:text-base leading-snug">${item.namaProgram}</h4>
+                                <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+                                    <span><i class="fa-solid fa-location-dot text-brand-500 mr-1"></i>${item.tempat}</span>
+                                    <span><i class="fa-solid fa-users text-brand-500 mr-1"></i>${item.sasaran}</span>
+                                    <span><i class="fa-solid fa-user-check text-brand-500 mr-1"></i>${item.namaGuru}</span>
+                                </div>
+                            </div>
+
+                            <!-- Right: Action Button -->
+                            <div>
+                                <button onclick="viewReportModal('${item.id}')" class="w-full sm:w-auto px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-file-invoice"></i>
+                                    <span>Lihat OPR</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Render Monthly Widget Grid
+            renderWidgetCalendarGrid();
+        }
+
+        function shiftWidgetMonth(direction) {
+            widgetCurrentMonth += direction;
+            if (widgetCurrentMonth < 0) {
+                widgetCurrentMonth = 11;
+                widgetCurrentYear--;
+            } else if (widgetCurrentMonth > 11) {
+                widgetCurrentMonth = 0;
+                widgetCurrentYear++;
+            }
+            renderWidgetCalendarGrid();
+        }
+
+        function renderWidgetCalendarGrid() {
+            const monthNames = ["Januari", "Februari", "Mac", "April", "Mei", "Jun", "Julai", "Ogos", "September", "Oktober", "November", "Disember"];
+            document.getElementById('widgetMonthTitle').innerHTML = `
+                <i class="fa-regular fa-calendar-days text-brand-600"></i>
+                <span>${monthNames[widgetCurrentMonth]} ${widgetCurrentYear}</span>
+            `;
+
+            const firstDay = new Date(widgetCurrentYear, widgetCurrentMonth, 1).getDay();
+            const daysInMonth = new Date(widgetCurrentYear, widgetCurrentMonth + 1, 0).getDate();
+            const gridContainer = document.getElementById('widgetGridDays');
+            gridContainer.innerHTML = '';
+
+            // Empty slots before 1st day of month
+            for (let i = 0; i < firstDay; i++) {
+                gridContainer.innerHTML += `<div class="p-2 text-slate-300 text-[10px]">-</div>`;
+            }
+
+            // Days of month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const monthStr = String(widgetCurrentMonth + 1).padStart(2, '0');
+                const dayStr = String(day).padStart(2, '0');
+                const dateKey = `${widgetCurrentYear}-${monthStr}-${dayStr}`;
+
+                // Check if any report matches this date
+                const hasEvents = reportsData.some(r => r.tarikhMula === dateKey || r.tarikhAkhir === dateKey);
+
+                const isToday = new Date().toDateString() === new Date(widgetCurrentYear, widgetCurrentMonth, day).toDateString();
+
+                let bgClass = "hover:bg-slate-100 text-slate-700 font-medium";
+                if (isToday) bgClass = "bg-brand-50 border border-brand-500 font-bold text-brand-700";
+                if (hasEvents) bgClass = "bg-brand-600 text-white font-black shadow-sm hover:bg-brand-700";
+
+                gridContainer.innerHTML += `
+                    <button onclick="filterByWidgetDate('${dateKey}')" title="${hasEvents ? 'Ada Aktiviti Dijalankan' : ''}" class="p-1.5 rounded-lg text-xs transition-all ${bgClass} flex flex-col items-center justify-center">
+                        <span>${day}</span>
+                        ${hasEvents ? `<span class="w-1.5 h-1.5 bg-amber-400 rounded-full mt-0.5"></span>` : ''}
+                    </button>
+                `;
+            }
+        }
+
+        function filterByWidgetDate(dateKey) {
+            document.getElementById('calFilterSpecificDate').value = dateKey;
+            renderCalendarView();
+        }
+
+        // VIEW MODAL POPULATION
+        function viewReportModal(id) {
+            const report = reportsData.find(r => r.id === id);
+            if (!report) return;
+
+            currentActiveReport = report;
+
+            const displayMula = formatDateDisplay(report.tarikhMula, true);
+            const displayAkhir = (report.tarikhAkhir && report.tarikhAkhir !== report.tarikhMula) ? formatDateDisplay(report.tarikhAkhir, true) : '';
+
+            document.getElementById('viewUnitBadge').innerText = report.unit || 'UMUM';
+            document.getElementById('viewNamaProgram').innerText = report.namaProgram;
+            document.getElementById('viewTarikh').innerText = `${displayMula}${displayAkhir ? ' hingga ' + displayAkhir : ''}`;
+            document.getElementById('viewTempat').innerText = report.tempat;
+            document.getElementById('viewSasaran').innerText = report.sasaran;
+            document.getElementById('viewObjektif').innerText = report.objektif;
+            document.getElementById('viewKekuatan').innerText = report.kekuatan;
+            document.getElementById('viewKelemahan').innerText = report.kelemahan;
+            document.getElementById('viewPenambahbaikan').innerText = report.penambahbaikan;
+            document.getElementById('viewNamaGuru').innerText = report.namaGuru;
+            document.getElementById('viewJawatanGuru').innerText = report.jawatanGuru;
+
+            // Images with Format & Fallback Handling
+            const placeholder = 'https://placehold.co/400x300/f1f5f9/94a3b8?text=Tiada+Gambar';
+            
+            const img1 = document.getElementById('viewImg1');
+            const img2 = document.getElementById('viewImg2');
+            const img3 = document.getElementById('viewImg3');
+
+            img1.onerror = function() { this.src = placeholder; };
+            img2.onerror = function() { this.src = placeholder; };
+            img3.onerror = function() { this.src = placeholder; };
+
+            img1.src = (report.images && report.images[0]) ? formatImageUrl(report.images[0]) : placeholder;
+            img2.src = (report.images && report.images[1]) ? formatImageUrl(report.images[1]) : placeholder;
+            img3.src = (report.images && report.images[2]) ? formatImageUrl(report.images[2]) : placeholder;
+
+            document.getElementById('viewModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('viewModal').classList.add('hidden');
+        }
+
+        // EDIT REPORT
+        function editReport(id) {
+            const report = reportsData.find(r => r.id === id);
+            if (!report) return;
+
+            document.getElementById('editingId').value = report.id;
+            document.getElementById('namaProgram').value = report.namaProgram;
+            setUnitValue(report.unit);
+            document.getElementById('tarikhMula').value = report.tarikhMula;
+            document.getElementById('tarikhAkhir').value = report.tarikhAkhir;
+            document.getElementById('tempat').value = report.tempat;
+            document.getElementById('sasaran').value = report.sasaran;
+            document.getElementById('objektif').value = report.objektif;
+            document.getElementById('kekuatan').value = report.kekuatan;
+            document.getElementById('kelemahan').value = report.kelemahan;
+            document.getElementById('penambahbaikan').value = report.penambahbaikan;
+            document.getElementById('namaGuru').value = report.namaGuru;
+            document.getElementById('jawatanGuru').value = report.jawatanGuru;
+
+            updateDayLabels();
+
+            // Set images
+            if (report.images) {
+                report.images.forEach((img, i) => {
+                    if (img) {
+                        imageBase64List[i] = img;
+                        document.getElementById(`imgPreview${i+1}`).src = img;
+                        document.getElementById(`imgPreviewContainer${i+1}`).classList.remove('hidden');
+                        document.getElementById(`imgUploadLabel${i+1}`).classList.add('hidden');
+                    } else {
+                        removeImage(i+1);
+                    }
+                });
+            }
+
+            document.getElementById('formTitleBadge').innerText = "Edit Laporan";
+            document.getElementById('formTitleBadge').className = "bg-amber-600 text-white font-bold text-xs uppercase px-3 py-1 rounded-full";
+            document.getElementById('formHeading').innerText = `Kemas Kini: ${report.namaProgram}`;
+            document.getElementById('saveBtnText').innerText = "Kemas Kini Laporan";
+
+            switchTab('form');
+        }
+
+        // DELETE REPORT
+        async function deleteReport(id) {
+            if (!confirm("Adakah anda pasti mahu memadam laporan ini?")) return;
+
+            reportsData = reportsData.filter(r => r.id !== id);
+            saveLocalReports();
+            updateReportBadge();
+            renderReportsList();
+            renderCalendarView();
+
+            showToast("Laporan telah dipadam secara tempatan.", "success");
+
+            try {
+                fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', sheetId: SHEET_ID, id: id })
+                });
+            } catch (e) {
+                console.warn("Delete remote error", e);
+            }
+        }
+
+        // PRINT FUNCTION (A4 PRINT ENGINE REQUIREMENT)
+        function triggerPrintModal() {
+            const printElement = document.getElementById('printContent');
+            if (!printElement) return;
+
+            const printWindow = window.open('', '_blank');
+            const printHtml = `
+                <!DOCTYPE html>
+                <html lang="ms">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Cetak Laporan OPR - SMK TAMAN NUSA JAYA</title>
+                    <script src="https://cdn.tailwindcss.com"><\/script>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+                    <style>
+                        @page {
+                            size: A4 portrait;
+                            margin: 6mm;
+                        }
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            background: white;
+                            color: #0f172a;
+                            margin: 0;
+                            padding: 0;
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                        .a4-page {
+                            width: 100%;
+                            min-height: 280mm;
+                            margin: auto;
+                            box-sizing: border-box;
+                            padding: 2mm;
+                        }
+                        .school-frame {
+                            border: 2px solid #0c4a6e;
+                            outline: 1px solid #0284c7;
+                            outline-offset: -5px;
+                            min-height: 275mm;
+                            padding: 14px;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: space-between;
+                            background: #ffffff;
+                        }
+                    </style>
+                </head>
+                <body class="bg-white">
+                    <div class="a4-page">
+                        ${printElement.innerHTML}
+                    </div>
+                </body>
+                </html>
+            `;
+
+            printWindow.document.open();
+            printWindow.document.write(printHtml);
+            printWindow.document.close();
+
+            // Give Tailwind & Images time to process layout
+            setTimeout(() => {
+                printWindow.focus();
+                printWindow.print();
+            }, 600);
+        }
+
+        // LOCAL STORAGE HELPERS
+        function saveLocalReports() {
+            try {
+                localStorage.setItem('opr_smk_taman_nusa_jaya_data', JSON.stringify(reportsData));
+            } catch (e) {
+                console.warn("Local storage write error:", e);
+            }
+        }
+
+        function loadLocalReports() {
+            try {
+                const stored = localStorage.getItem('opr_smk_taman_nusa_jaya_data');
+                if (stored) {
+                    reportsData = JSON.parse(stored);
+                } else {
+                    reportsData = [];
+                    saveLocalReports();
+                }
+                updateReportBadge();
+            } catch (e) {
+                console.warn("Local storage read error:", e);
+            }
+        }
+
+        async function fetchReportsFromAppsScript() {
+            showToast("Menyemak rekod terkini di Google Sheet...", "info");
+            try {
+                const res = await fetch(`${APPS_SCRIPT_URL}?sheetId=${SHEET_ID}&action=read`);
+                const json = await res.json();
+                if (json.status === 'success' && Array.isArray(json.data)) {
+                    reportsData = json.data;
+                    saveLocalReports();
+                    updateReportBadge();
+                    renderReportsList();
+                    renderCalendarView();
+                    showToast("Rekod berjaya dikemas kini dari Google Sheet!", "success");
+                }
+            } catch (e) {
+                console.log("Reading from GAS skipped or running offline mode:", e);
+                renderReportsList();
+                renderCalendarView();
+            }
+        }
+
+        function updateReportBadge() {
+            document.getElementById('reportCountBadge').innerText = reportsData.length;
+        }
+
+        // HELPER: Format Google Drive URLs to direct embeddable images
+        function formatImageUrl(url) {
+            if (!url) return '';
+            if (url.startsWith('data:image')) return url;
+            const driveIdMatch = url.match(/\/d\/([^\/]+)/) || url.match(/id=([^&]+)/);
+            if (driveIdMatch && driveIdMatch[1]) {
+                return `https://lh3.googleusercontent.com/d/${driveIdMatch[1]}`;
+            }
+            return url;
+        }
+
+        // TOAST NOTIFICATIONS
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let bgClass = "bg-slate-800 text-white";
+            let icon = "fa-circle-info";
+            if (type === 'success') { bgClass = "bg-emerald-600 text-white"; icon = "fa-circle-check"; }
+            if (type === 'error') { bgClass = "bg-red-600 text-white"; icon = "fa-circle-exclamation"; }
+
+            toast.className = `p-4 rounded-xl shadow-lg border border-white/20 flex items-center gap-3 text-sm font-semibold transition-all duration-300 transform translate-y-2 opacity-0 ${bgClass}`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+    </script>
+
+    <!-- PWA Registration & Install Prompt -->
+    <script>
+        let deferredPwaPrompt = null;
+
+        window.addEventListener('beforeinstallprompt', (event) => {
+            event.preventDefault();
+            deferredPwaPrompt = event;
+            const btn = document.getElementById('pwaInstallBtn');
+            if (btn) {
+                btn.classList.remove('hidden');
+                btn.classList.add('flex');
+            }
+        });
+
+        async function installPWA() {
+            if (!deferredPwaPrompt) return;
+            deferredPwaPrompt.prompt();
+            await deferredPwaPrompt.userChoice;
+            deferredPwaPrompt = null;
+            const btn = document.getElementById('pwaInstallBtn');
+            if (btn) {
+                btn.classList.add('hidden');
+                btn.classList.remove('flex');
+            }
+        }
+
+        window.addEventListener('appinstalled', () => {
+            deferredPwaPrompt = null;
+            const btn = document.getElementById('pwaInstallBtn');
+            if (btn) {
+                btn.classList.add('hidden');
+                btn.classList.remove('flex');
+            }
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js', { scope: './' })
+                    .catch((error) => console.warn('PWA service worker gagal didaftarkan:', error));
+            });
+        }
+    </script>
+
+</body>
+</html>

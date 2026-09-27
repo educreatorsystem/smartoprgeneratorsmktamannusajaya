@@ -1,0 +1,31 @@
+{
+  "name": "Sistem Jana OPR - SMK Taman Nusa Jaya",
+  "short_name": "OPR SMKTNJ",
+  "description": "Sistem Penjana One Page Report (OPR) dan Kalendar Program - SMK Taman Nusa Jaya",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#0c4a6e",
+  "lang": "ms",
+  "icons": [
+    {
+      "src": "https://iili.io/n5OSeAg.md.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://iili.io/n5OSeAg.md.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://iili.io/n5OSeAg.md.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
