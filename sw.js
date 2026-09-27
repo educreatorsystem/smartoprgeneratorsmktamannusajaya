@@ -1,4 +1,4 @@
-const CACHE_NAME = 'opr-smk-taman-nusa-jaya-v1-20260928';
+const CACHE_NAME = 'opr-smk-taman-nusa-jaya-v2-20260928';
 const APP_SHELL = [
   './',
   './index.html',
